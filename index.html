@@ -26,7 +26,7 @@
 <div class="sr"><div class="sc"><div class="sn" id="s1">-</div><div class="sl">전체 제보 수</div></div><div class="sc"><div class="sn" id="s2">-</div><div class="sl">오늘 제보</div></div><div class="sc"><div class="sn" id="s3">-</div><div class="sl">스크린샷 포함</div></div></div>
 <div class="sl2" id="sl"></div>
 </div>
-<div id="tfe" style="display:none"><div class="fe"><h3>기능 드롭다운 목록 관리</h3><p>항목을 추가·삭제하면 제보 폼에 즉시 반영됩니다.</p><div class="fl" id="fl"></div><div class="far"><input type="text" id="fai" placeholder="새 기능명 입력" onkeydown="if(event.key==='Enter')af()" maxlength="40"/><button class="badd" onclick="af()">+ 추가</button></div><div class="sm" id="sm">✓ 저장되었습니다</div></div></div>
+<div id="tfe" style="display:none"><div class="fe"><h3>기능 드롭다운 목록 관리</h3><p>텍스트를 직접 수정하고 💾 전체 저장하기를 누르세요. ✕는 해당 항목 삭제.</p><div class="fl" id="fl"></div><button class="badd" onclick="saveAll()" style="width:100%;margin-bottom:10px">💾 전체 저장하기</button><div class="far"><input type="text" id="fai" placeholder="새 기능명 입력" onkeydown="if(event.key==='Enter')af()" maxlength="40"/><button class="badd" onclick="af()">+ 추가</button></div><div class="sm" id="sm">✓ 저장되었습니다</div></div></div>
 </div></div>
 
 <script>
@@ -35,6 +35,8 @@ const FK='ac-feats';
 const DF=['이미지 생성','문서 요약','코드 작성 / 리뷰','데이터 분석','번역 · 다국어','음성 인식 / 변환','RAG / 검색 연동','에이전트 자동화','기타 (직접 입력)'];
 async function lf(){try{const r=localStorage.getItem(FK);return r?JSON.parse(r):[...DF];}catch{return[...DF];}}
 async function sf(l){localStorage.setItem(FK,JSON.stringify(l));}
+function gasGet(){return new Promise((res,rej)=>{const id='cb'+Date.now();window[id]=d=>{delete window[id];document.getElementById('_js')?.remove();res(d);};const s=document.createElement('script');s.id='_js';s.src=G+'?callback='+id;s.onerror=()=>rej(new Error('연결 실패'));document.head.appendChild(s);setTimeout(()=>rej(new Error('시간 초과')),10000);});}
+function gasGet(){return new Promise((res,rej)=>{const id='cb'+Date.now();window[id]=d=>{delete window[id];document.getElementById('_js')?.remove();res(d);};const s=document.createElement('script');s.id='_js';s.src=G+'?callback='+id;s.onerror=()=>rej(new Error('연결 실패'));document.head.appendChild(s);setTimeout(()=>rej(new Error('시간 초과')),10000);});}
 function sp(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
 let imgD=null,imgN=null;
 async function initF(){const f=await lf();const s=document.getElementById('ff');s.innerHTML='<option value="" disabled selected>기능을 선택해주세요</option>';f.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});}
@@ -56,8 +58,8 @@ document.getElementById('bs').addEventListener('click',async()=>{
   const now=new Date();
   const date=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   try{
-    const r=await fetch(G,{method:'POST',body:JSON.stringify({name,feature:feat,desc,date,img:imgD||null,fileName:imgN||null})});
-    const j=await r.json();if(!j.ok)throw new Error(j.error||'오류');
+    const r=await fetch(G,{method:'POST',mode:'no-cors',body:JSON.stringify({name,feature:feat,desc,date,img:imgD||null,fileName:imgN||null})});
+    // no-cors라 응답 못 읽지만 GAS는 정상 수신함
     document.getElementById('ts').innerHTML=[['제출자',name],['사용 기능',feat],['내용 설명',desc],['스크린샷',imgN||'없음']].map(([k,v])=>`<div class="tyr"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
     document.getElementById('fn').value='';document.getElementById('ff').selectedIndex=0;document.getElementById('fc').style.display='none';document.getElementById('fc').value='';document.getElementById('fd').value='';document.getElementById('cc').textContent='0';imgD=null;imgN=null;document.getElementById('fi').value='';document.getElementById('pw').style.display='none';document.getElementById('pi').src='';
     sp('pt');
@@ -70,7 +72,7 @@ async function la(){
   const el=document.getElementById('sl');el.innerHTML='<div class="es"><div class="ei">⏳</div><div class="et">불러오는 중...</div></div>';
   ['s1','s2','s3'].forEach(id=>document.getElementById(id).textContent='...');
   try{
-    const r=await fetch(G);const d=await r.json();if(!d.ok)throw new Error(d.error||'실패');
+    const d=await gasGet();if(!d.ok)throw new Error(d.error||'실패');
     const rows=d.rows;const tp=new Date().toISOString().slice(0,10).replace(/-/g,'.');
     document.getElementById('s1').textContent=rows.length;
     document.getElementById('s2').textContent=rows.filter(r=>String(r['제출일시']).startsWith(tp)).length;
@@ -80,8 +82,8 @@ async function la(){
   }catch(e){el.innerHTML=`<div class="es"><div class="ei">⚠️</div><div class="et">오류: ${esc(e.message)}</div></div>`;}
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-async function rf(){const f=await lf();document.getElementById('fl').innerHTML=f.map((v,i)=>`<div class="fi"><span>${esc(v)}</span><button class="fd" onclick="df(${i})">✕</button></div>`).join('');}
-async function df(i){let f=await lf();f.splice(i,1);await sf(f);rf();initF();ssm();}
+async function rf(){const f=await lf();document.getElementById('fl').innerHTML=f.map((v,i)=>`<div class="fi"><input type="text" value="${esc(v)}" style="flex:1;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--ink);outline:none;padding:0"/><button class="fd" onclick="this.closest('.fi').remove()">✕</button></div>`).join('');}
+async function saveAll(){const inputs=document.querySelectorAll('#fl input');const f=[...inputs].map(i=>i.value.trim()).filter(Boolean);await sf(f);initF();ssm();}
 async function af(){const inp=document.getElementById('fai');const v=inp.value.trim();if(!v)return;let f=await lf();const i=f.indexOf('기타 (직접 입력)');if(i>=0)f.splice(i,0,v);else f.push(v);await sf(f);inp.value='';rf();initF();ssm();}
 function ssm(){const e=document.getElementById('sm');e.style.display='block';setTimeout(()=>e.style.display='none',2000);}
 initF();
