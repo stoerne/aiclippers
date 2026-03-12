@@ -82,7 +82,7 @@ async function la(){
   }catch(e){el.innerHTML=`<div class="es"><div class="ei">⚠️</div><div class="et">오류: ${esc(e.message)}</div></div>`;}
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-async function rf(){const f=await lf();document.getElementById('fl').innerHTML=f.map((v,i)=>`<div class="fi"><input type="text" value="${esc(v)}" style="flex:1;border:none;background:transparent;font-size:13px;font-weight:500;color:var(--ink);outline:none;padding:0"/><button class="fd" onclick="this.closest('.fi').remove()">✕</button></div>`).join('');}
+async function rf(){const f=await lf();document.getElementById('fl').innerHTML=f.map((v,i)=>`<div class="fi"><input type="text" value="${esc(v)}" class="fi-inp" style="flex:1;border:none!important;background:transparent!important;font-size:13px;font-weight:500;color:var(--ink);outline:none!important;padding:0!important;box-shadow:none!important;border-radius:0!important;width:auto"/><button class="fd" onclick="this.closest('.fi').remove()">✕</button></div>`).join('');}
 async function saveAll(){const inputs=document.querySelectorAll('#fl input');const f=[...inputs].map(i=>i.value.trim()).filter(Boolean);await sf(f);initF();ssm();}
 async function af(){const inp=document.getElementById('fai');const v=inp.value.trim();if(!v)return;let f=await lf();const i=f.indexOf('기타 (직접 입력)');if(i>=0)f.splice(i,0,v);else f.push(v);await sf(f);inp.value='';rf();initF();ssm();}
 function ssm(){const e=document.getElementById('sm');e.style.display='block';setTimeout(()=>e.style.display='none',2000);}
