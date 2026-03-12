@@ -30,12 +30,11 @@
 </div></div>
 
 <script>
-const G='https://script.google.com/macros/s/AKfycbxH3a5yTwO3JYmAvzqPOhIv1h75ncP_st6pcKIcJXU_EVlBxPKAXxRrxjt_ceAaSzj7/exec';
+const G='https://script.google.com/macros/s/AKfycbyqHcJYSF_RRV04FfFRonIn-K43v2KqhgMzUYUHAEY5Dz5BYg6iif1ClP0laEoE4yBg/exec';
 const FK='ac-feats';
 const DF=['이미지 생성','문서 요약','코드 작성 / 리뷰','데이터 분석','번역 · 다국어','음성 인식 / 변환','RAG / 검색 연동','에이전트 자동화','기타 (직접 입력)'];
 async function lf(){try{const r=localStorage.getItem(FK);return r?JSON.parse(r):[...DF];}catch{return[...DF];}}
 async function sf(l){localStorage.setItem(FK,JSON.stringify(l));}
-function gasGet(){return new Promise((res,rej)=>{const id='cb'+Date.now();window[id]=d=>{delete window[id];document.getElementById('_js')?.remove();res(d);};const s=document.createElement('script');s.id='_js';s.src=G+'?callback='+id;s.onerror=()=>rej(new Error('연결 실패'));document.head.appendChild(s);setTimeout(()=>rej(new Error('시간 초과')),10000);});}
 function gasGet(){return new Promise((res,rej)=>{const id='cb'+Date.now();window[id]=d=>{delete window[id];document.getElementById('_js')?.remove();res(d);};const s=document.createElement('script');s.id='_js';s.src=G+'?callback='+id;s.onerror=()=>rej(new Error('연결 실패'));document.head.appendChild(s);setTimeout(()=>rej(new Error('시간 초과')),10000);});}
 function sp(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
 let imgD=null,imgN=null;
