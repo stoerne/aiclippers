@@ -33,8 +33,8 @@
 const G='https://script.google.com/macros/s/AKfycbxmxi4uHVvGVRup38gY_4Mh0wHTKMUT3DRdLmrgCzeMo0hZ-qyETivMPPB-UI-26uMd/exec';
 const FK='ac-feats';
 const DF=['이미지 생성','문서 요약','코드 작성 / 리뷰','데이터 분석','번역 · 다국어','음성 인식 / 변환','RAG / 검색 연동','에이전트 자동화','기타 (직접 입력)'];
-async function lf(){try{const r=await window.storage.get(FK);return r?JSON.parse(r.value):[...DF];}catch{return[...DF];}}
-async function sf(l){await window.storage.set(FK,JSON.stringify(l));}
+async function lf(){try{const r=localStorage.getItem(FK);return r?JSON.parse(r):[...DF];}catch{return[...DF];}}
+async function sf(l){localStorage.setItem(FK,JSON.stringify(l));}
 function sp(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
 let imgD=null,imgN=null;
 async function initF(){const f=await lf();const s=document.getElementById('ff');s.innerHTML='<option value="" disabled selected>기능을 선택해주세요</option>';f.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;s.appendChild(o);});}
