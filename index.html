@@ -57,9 +57,17 @@ document.getElementById('bs').addEventListener('click',async()=>{
   const now=new Date();
   const date=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   try{
-    const r=await fetch(G,{method:'POST',mode:'no-cors',body:JSON.stringify({name,feature:feat,desc,date,img:imgD||null,fileName:imgN||null})});
-    // no-cors라 응답 못 읽지만 GAS는 정상 수신함
-    document.getElementById('ts').innerHTML=[['제출자',name],['사용 기능',feat],['내용 설명',desc],['스크린샷',imgN||'없음']].map(([k,v])=>`<div class="tyr"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+    await new Promise((res,rej)=>{
+      const id='sub'+Date.now();
+      window[id]=d=>{delete window[id];document.getElementById('_sub')?.remove();d.ok?res():rej(new Error(d.error||'오류'));};
+      const p=new URLSearchParams({callback:id,action:'submit',name,feature:feat,desc,date});
+      const s=document.createElement('script');s.id='_sub';
+      s.src=G+'?'+p.toString();
+      s.onerror=()=>rej(new Error('연결 실패'));
+      document.head.appendChild(s);
+      setTimeout(()=>rej(new Error('시간 초과')),10000);
+    });
+    document.getElementById('ts').innerHTML=[['제출자',name],['사용 기능',feat],['내용 설명',desc]].map(([k,v])=>`<div class="tyr"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
     document.getElementById('fn').value='';document.getElementById('ff').selectedIndex=0;document.getElementById('fc').style.display='none';document.getElementById('fc').value='';document.getElementById('fd').value='';document.getElementById('cc').textContent='0';imgD=null;imgN=null;document.getElementById('fi').value='';document.getElementById('pw').style.display='none';document.getElementById('pi').src='';
     sp('pt');
   }catch(e){alert('제출 오류: '+e.message);}
