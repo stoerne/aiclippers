@@ -45,33 +45,61 @@ function hf(file){const e=document.getElementById('fer');e.style.display='none';
 document.getElementById('fi').addEventListener('change',e=>hf(e.target.files[0]));
 const uz=document.getElementById('uz');uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag');});uz.addEventListener('dragleave',()=>uz.classList.remove('drag'));uz.addEventListener('drop',e=>{e.preventDefault();uz.classList.remove('drag');hf(e.dataTransfer.files[0]);});
 document.getElementById('prm').addEventListener('click',()=>{imgD=null;imgN=null;document.getElementById('fi').value='';document.getElementById('pw').style.display='none';document.getElementById('pi').src='';});
-document.getElementById('bs').addEventListener('click',async()=>{
-  const name=document.getElementById('fn').value.trim();
-  const sv=document.getElementById('ff').value;
-  const feat=sv==='기타 (직접 입력)'?document.getElementById('fc').value.trim():sv;
-  const desc=document.getElementById('fd').value.trim();
-  if(!name){alert('성명 또는 팀명을 입력해주세요.');return;}
-  if(!feat){alert('사용한 기능을 선택해주세요.');return;}
-  if(!desc){alert('설명을 입력해주세요.');return;}
-  const btn=document.getElementById('bs');btn.disabled=true;btn.textContent='⏳ 제출 중...';
-  const now=new Date();
-  const date=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  try{
-    await new Promise((res,rej)=>{
-      const id='sub'+Date.now();
-      window[id]=d=>{delete window[id];document.getElementById('_sub')?.remove();d.ok?res():rej(new Error(d.error||'오류'));};
-      const p=new URLSearchParams({callback:id,action:'submit',name,feature:feat,desc,date});
-      const s=document.createElement('script');s.id='_sub';
-      s.src=G+'?'+p.toString();
-      s.onerror=()=>rej(new Error('연결 실패'));
-      document.head.appendChild(s);
-      setTimeout(()=>rej(new Error('시간 초과')),10000);
+document.getElementById('bs').addEventListener('click', async () => {
+  const name = document.getElementById('fn').value.trim();
+  const sv = document.getElementById('ff').value;
+  const feat = sv === '기타 (직접 입력)' ? document.getElementById('fc').value.trim() : sv;
+  const desc = document.getElementById('fd').value.trim();
+
+  if (!name || !feat || !desc) { alert('필수 항목을 입력해주세요.'); return; }
+
+  const btn = document.getElementById('bs');
+  btn.disabled = true;
+  btn.textContent = '⏳ 제출 중...';
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  // 이미지를 포함한 전체 데이터를 JSON으로 구성
+  const payload = {
+    name: name,
+    feature: feat,
+    desc: desc,
+    date: dateStr,
+    imgData: imgD, // FileReader로 읽은 이미지 데이터
+    imgName: imgN
+  };
+
+  try {
+    // POST 방식으로 데이터 전송
+    const response = await fetch(G, {
+      method: 'POST',
+      body: JSON.stringify(payload)
     });
-    document.getElementById('ts').innerHTML=[['제출자',name],['사용 기능',feat],['내용 설명',desc]].map(([k,v])=>`<div class="tyr"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
-    document.getElementById('fn').value='';document.getElementById('ff').selectedIndex=0;document.getElementById('fc').style.display='none';document.getElementById('fc').value='';document.getElementById('fd').value='';document.getElementById('cc').textContent='0';imgD=null;imgN=null;document.getElementById('fi').value='';document.getElementById('pw').style.display='none';document.getElementById('pi').src='';
-    sp('pt');
-  }catch(e){alert('제출 오류: '+e.message);}
-  finally{btn.disabled=false;btn.textContent='제보 제출하기 →';}
+    
+    const result = await response.json();
+
+    if (result.ok) {
+      document.getElementById('ts').innerHTML = [['제출자', name], ['사용 기능', feat], ['내용 설명', desc]].map(([k, v]) => `<div class="tyr"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+      
+      // 폼 초기화
+      document.getElementById('fn').value = '';
+      document.getElementById('fd').value = '';
+      document.getElementById('ff').selectedIndex = 0;
+      document.getElementById('pw').style.display = 'none';
+      imgD = null;
+      imgN = null;
+      
+      sp('pt'); // 완료 화면으로 이동
+    } else {
+      throw new Error(result.error);
+    }
+  } catch (e) {
+    alert('제출 실패: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '제보 제출하기 →';
+  }
 });
 function dl(){const pw=document.getElementById('pw2').value;if(pw==='0001'){document.getElementById('pw2').value='';document.getElementById('le').style.display='none';la();sp('pa');}else{document.getElementById('le').style.display='block';document.getElementById('pw2').value='';document.getElementById('pw2').focus();}}
 function st(n,btn){document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');document.getElementById('ts2').style.display=n==='s'?'block':'none';document.getElementById('tfe').style.display=n==='fe'?'block':'none';if(n==='fe')rf();}
