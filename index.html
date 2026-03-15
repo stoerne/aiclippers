@@ -71,29 +71,25 @@ document.getElementById('bs').addEventListener('click', async () => {
   };
 
   try {
-    // POST 방식으로 데이터 전송
-    const response = await fetch(G, {
+    // POST 방식으로 데이터 전송 (no-cors: GAS 리다이렉트 CORS 오류 우회)
+    await fetch(G, {
       method: 'POST',
+      mode: 'no-cors',
       body: JSON.stringify(payload)
     });
-    
-    const result = await response.json();
 
-    if (result.ok) {
-      document.getElementById('ts').innerHTML = [['제출자', name], ['사용 기능', feat], ['내용 설명', desc]].map(([k, v]) => `<div class="tyr"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
-      
-      // 폼 초기화
-      document.getElementById('fn').value = '';
-      document.getElementById('fd').value = '';
-      document.getElementById('ff').selectedIndex = 0;
-      document.getElementById('pw').style.display = 'none';
-      imgD = null;
-      imgN = null;
-      
-      sp('pt'); // 완료 화면으로 이동
-    } else {
-      throw new Error(result.error);
-    }
+    // no-cors 모드에서는 응답을 읽을 수 없으므로 낙관적 성공 처리
+    document.getElementById('ts').innerHTML = [['제출자', name], ['사용 기능', feat], ['내용 설명', desc]].map(([k, v]) => `<div class="tyr"><span class="k">${k}</span><span class="v">${v}</span></div>`).join('');
+    
+    // 폼 초기화
+    document.getElementById('fn').value = '';
+    document.getElementById('fd').value = '';
+    document.getElementById('ff').selectedIndex = 0;
+    document.getElementById('pw').style.display = 'none';
+    imgD = null;
+    imgN = null;
+    
+    sp('pt'); // 완료 화면으로 이동
   } catch (e) {
     alert('제출 실패: ' + e.message);
   } finally {
