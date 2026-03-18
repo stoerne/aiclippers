@@ -75,10 +75,9 @@ document.getElementById('bs').addEventListener('click', async () => {
     // no-cors + Content-Type:text/plain 조합이어야 body가 GAS에 실제로 전달됨
     // (no-cors 모드에서 application/json은 브라우저가 body를 차단함)
     await fetch(G, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
+  method: 'POST',
+  // mode: 'no-cors'를 제거하거나 'cors'로 명시 (Apps Script는 기본적으로 CORS 허용)
+  body: JSON.stringify(payload) 
     });
 
     // no-cors 모드에서는 응답을 읽을 수 없으므로 낙관적 성공 처리
