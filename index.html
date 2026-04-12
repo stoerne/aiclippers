@@ -31,10 +31,11 @@
 
 <script>
 const G='https://script.google.com/macros/s/AKfycbwvoeIzln1TyM8pSFSujlJCqTsZOLcmbJY_rGUCswUXkhnnldskw5vaaQxHVmo8Rxs1/exec';
-const FK='ac-feats';
 const DF=['이미지 생성','문서 요약','코드 작성 / 리뷰','데이터 분석','번역 · 다국어','음성 인식 / 변환','RAG / 검색 연동','에이전트 자동화','기타 (직접 입력)'];
-async function lf(){try{const r=localStorage.getItem(FK);return r?JSON.parse(r):[...DF];}catch{return[...DF];}}
-async function sf(l){localStorage.setItem(FK,JSON.stringify(l));}
+// 기능 목록 로드: 구글 시트 '기능설정' 탭에서 읽어옴 (모든 사용자 공통)
+async function lf(){try{const d=await gasGet();if(d.ok&&d.feats&&d.feats.length>0)return d.feats;return[...DF];}catch{return[...DF];}}
+// 기능 목록 저장: 구글 시트 '기능설정' 탭에 씀
+async function sf(l){await fetch(G,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'saveFeatures',feats:l})});}
 function gasGet(){return new Promise((res,rej)=>{const id='cb'+Date.now();window[id]=d=>{delete window[id];document.getElementById('_js')?.remove();res(d);};const s=document.createElement('script');s.id='_js';s.src=G+'?callback='+id;s.onerror=()=>rej(new Error('연결 실패'));document.head.appendChild(s);setTimeout(()=>rej(new Error('시간 초과')),10000);});}
 function sp(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
 let imgD=null,imgN=null;
